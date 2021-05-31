@@ -3,40 +3,63 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(FoodCollection))]
+[RequireComponent(typeof(SnakeColorChange))]
+[RequireComponent(typeof(Snake))]
 public class Movement : MonoBehaviour
 {
+    [SerializeField] private GameObject _test;
+
     [SerializeField] private float _speed;
     [SerializeField] private float _stepSize;
-    [SerializeField] private List<Transform> _tails;
+    [SerializeField] private List<GameObject> _tails;
     [SerializeField] private GameObject _bonePrefab;
-    [Range(0, 5), SerializeField] private float _bonesDistance;
+    [Range(0, 35), SerializeField] private float _bonesDistance;
 
+    private FoodCollection _foodCollection;
+    private SnakeColorChange _snakeColorChange;
+    private Snake _snake;
     private PlayerInput _playerInput;
+    private MeshRenderer _meshTail;
+    private int _indexMesh = 0;
     private Vector2 _direction;
     private Vector3 _targetPosition;
+
+    private bool _moveLeft;
+
+    public List<GameObject> Tails => _tails;
 
     private void Awake()
     {
         _playerInput = new PlayerInput();
 
-        _playerInput.Player.Move.performed += ctx => MoveDirection();
+        _foodCollection = GetComponent<FoodCollection>();
+        _snake = GetComponent<Snake>();
+        _snakeColorChange = GetComponent<SnakeColorChange>();
+
+        _playerInput.Player.Tap.performed += ctx => MoveDirection();
     }
 
     private void OnEnable()
     {
         _playerInput.Enable();
+        _snake.DamageReceived += RemoveTail;
+        _foodCollection.FoodCollected += AddTail;
+        _snakeColorChange.SnakeHeadColorChanged += ChangeColorTail;
     }
 
     private void OnDisable()
     {
         _playerInput.Disable();
+        _snake.DamageReceived -= RemoveTail;
+        _foodCollection.FoodCollected -= AddTail;
+        _snakeColorChange.SnakeHeadColorChanged -= ChangeColorTail;
     }
 
     private void Update()
     {
         MoveHead(_direction.x);
         MoveTail();
-        //Rotate(_direction);
     }
 
     private void MoveHead(float direction)
@@ -53,40 +76,56 @@ public class Movement : MonoBehaviour
 
         foreach (var bone in _tails)
         {
-            if ((bone.position - previousPosition).sqrMagnitude > sqrDistance)
+            if ((bone.transform.position - previousPosition).sqrMagnitude > sqrDistance)
             {
-                Vector3 currentBonePosition = bone.position;
-                bone.position = previousPosition;
+                Vector3 currentBonePosition = bone.transform.position;
+                bone.transform.position = previousPosition;
                 previousPosition = currentBonePosition;
             }
-            /*else
-            {
-                break;
-            }*/
         }
     }
 
     private void MoveDirection()
     {
-        Vector2 direction = _playerInput.Player.Move.ReadValue<Vector2>();
-
-        _direction = direction;
-    }
-
-    private void Rotate(Vector2 direction)
-    {
-        float angle = direction.x * 20f * Time.deltaTime;
-        transform.Rotate(0, angle, 0);
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.TryGetComponent(out Eat eat))
+        if (_moveLeft)
         {
-            Destroy(other.gameObject);
-
-            GameObject bone = Instantiate(_bonePrefab);
-            _tails.Add(bone.transform);
+            _direction = new Vector2(1,0);
+            _moveLeft = false;
         }
+        else
+        {
+            _direction = new Vector2(-1, 0);
+            _moveLeft = true;
+        }
+    }
+
+    private void AddTail()
+    {
+        GameObject bone = Instantiate(_bonePrefab);
+        _tails.Add(bone);
+
+        _meshTail = _tails[_tails.Count - 1].GetComponent<MeshRenderer>();
+        _meshTail.material = _snakeColorChange.MeshSpawnPoint[_indexMesh - 1].material;
+    }
+
+    private void RemoveTail()
+    {
+        if (_tails.Count >= 1)
+        {
+            GameObject boneForDestroy = _tails[_tails.Count - 1];
+            _tails.RemoveAt(_tails.Count - 1);
+            Destroy(boneForDestroy);
+        }
+    }
+
+    private void ChangeColorTail()
+    {
+        for (int i = 0; i < _tails.Count; i++)
+        {
+            _meshTail = _tails[i].GetComponent<MeshRenderer>();
+            _meshTail.material = _snakeColorChange.MeshSpawnPoint[_indexMesh].material;
+        }
+
+        _indexMesh++;
     }
 }
