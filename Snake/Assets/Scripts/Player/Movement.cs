@@ -130,8 +130,7 @@ public class Movement : MonoBehaviour
     private void ActiveFever()
     {
         _isFever = true;
-        _indexMesh = 3;
-        transform.position = new Vector3(0, transform.position.y, transform.position.z);
+        transform.position = new Vector3(transform.position.x, transform.position.y, 0);
         _speed *= _boostSpeed;
         _direction = new Vector2(0, 0);
         StartCoroutine(WorkFever());

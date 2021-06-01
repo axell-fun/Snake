@@ -7,7 +7,6 @@ public class SnakeColorChange : MonoBehaviour
 {
     [SerializeField] private MeshRenderer[] _meshSpawnPoint;
     [SerializeField] private MeshRenderer _currentMesh;
-    [SerializeField] private Movement _move;
 
     private int _indexMesh = 0;
 
@@ -19,9 +18,6 @@ public class SnakeColorChange : MonoBehaviour
     {
         if (other.TryGetComponent(out SpawnFood spawnFood))
         {
-            if (_move.IsFever)
-                _indexMesh = 3;
-
             SnakeHeadColorChanged?.Invoke();
             _currentMesh.materials = _meshSpawnPoint[_indexMesh].materials;
             _indexMesh++;
