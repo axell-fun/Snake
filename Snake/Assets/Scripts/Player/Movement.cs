@@ -8,9 +8,8 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Snake))]
 public class Movement : MonoBehaviour
 {
-    [SerializeField] private GameObject _test;
-
     [SerializeField] private float _speed;
+    [SerializeField] private float _boostSpeed;
     [SerializeField] private float _stepSize;
     [SerializeField] private List<GameObject> _tails;
     [SerializeField] private GameObject _bonePrefab;
@@ -24,8 +23,9 @@ public class Movement : MonoBehaviour
     private int _indexMesh = 0;
     private Vector2 _direction;
     private Vector3 _targetPosition;
+    private bool _isFever;
 
-    private bool _moveLeft;
+    public bool IsFever => _isFever;
 
     public List<GameObject> Tails => _tails;
 
@@ -37,7 +37,7 @@ public class Movement : MonoBehaviour
         _snake = GetComponent<Snake>();
         _snakeColorChange = GetComponent<SnakeColorChange>();
 
-        _playerInput.Player.Tap.performed += ctx => MoveDirection();
+        _playerInput.Player.TapInput.performed += ctx => MoveDirection();
     }
 
     private void OnEnable()
@@ -45,6 +45,7 @@ public class Movement : MonoBehaviour
         _playerInput.Enable();
         _snake.DamageReceived += RemoveTail;
         _foodCollection.FoodCollected += AddTail;
+        _foodCollection.FeverActivated += ActiveFever;
         _snakeColorChange.SnakeHeadColorChanged += ChangeColorTail;
     }
 
@@ -53,6 +54,7 @@ public class Movement : MonoBehaviour
         _playerInput.Disable();
         _snake.DamageReceived -= RemoveTail;
         _foodCollection.FoodCollected -= AddTail;
+        _foodCollection.FeverActivated -= ActiveFever;
         _snakeColorChange.SnakeHeadColorChanged -= ChangeColorTail;
     }
 
@@ -87,16 +89,12 @@ public class Movement : MonoBehaviour
 
     private void MoveDirection()
     {
-        if (_moveLeft)
-        {
-            _direction = new Vector2(1,0);
-            _moveLeft = false;
-        }
-        else
-        {
+        Vector2 direction = _playerInput.Player.TapInput.ReadValue<Vector2>();
+
+        if (direction.x > 600 && !_isFever)
+            _direction = new Vector2(1, 0);
+        else if (!_isFever)
             _direction = new Vector2(-1, 0);
-            _moveLeft = true;
-        }
     }
 
     private void AddTail()
@@ -127,5 +125,22 @@ public class Movement : MonoBehaviour
         }
 
         _indexMesh++;
+    }
+
+    private void ActiveFever()
+    {
+        _isFever = true;
+        _indexMesh = 3;
+        transform.position = new Vector3(0, transform.position.y, transform.position.z);
+        _speed *= _boostSpeed;
+        _direction = new Vector2(0, 0);
+        StartCoroutine(WorkFever());
+    }
+
+    private IEnumerator WorkFever()
+    {
+        yield return new WaitForSeconds(5f);
+        _speed /= _boostSpeed;
+        _isFever = false;
     }
 }

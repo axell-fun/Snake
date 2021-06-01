@@ -5,11 +5,13 @@ using UnityEngine;
 public class SpawnFood : MonoBehaviour
 {
     [SerializeField] private Material _meshSpawner;
-    [SerializeField] private int _numberPointsWithFood;
     [SerializeField] private Eat _eat;
-    [SerializeField] private Coin _coin;
-    [SerializeField] private Peaks _peaks;
-    [SerializeField] private GameObject _food;
+    [SerializeField] private int _numberPointsWithFood;
+    [SerializeField] private int _startSpawnPositionX;
+    [SerializeField] private int _distanceBetweenObjects;
+    [SerializeField] private GameObject[] _food;
+    [SerializeField] private GameObject[] _centerLine;
+    [SerializeField] private int[] _spawnPositionZ;
 
 
     private void Awake()
@@ -18,9 +20,8 @@ public class SpawnFood : MonoBehaviour
         
         for (int i = 0; i < _numberPointsWithFood; i++)
         {
-            Instantiate(_food, new Vector3(transform.position.x - 6f + i * -10f, transform.position.y, 3f), Quaternion.identity);
-            //Instantiate(_food[Random.Range(0, _food.Length)], new Vector3(transform.position.x - 10f + i * -10f, transform.position.y, 0f), Quaternion.identity);
-            //Instantiate(_food[Random.Range(0, _food.Length)], new Vector3(transform.position.x - 2f + i * -10f, transform.position.y, -3f), Quaternion.identity);
+            Instantiate(_food[Random.Range(0, _food.Length)], new Vector3(transform.position.x - _startSpawnPositionX + i * _distanceBetweenObjects, transform.position.y, _spawnPositionZ[Random.Range(0, _spawnPositionZ.Length)]), Quaternion.identity);
+            Instantiate(_centerLine[Random.Range(0, _centerLine.Length)], new Vector3(transform.position.x - _startSpawnPositionX + i * _distanceBetweenObjects, transform.position.y, 0), Quaternion.identity);
         }
     }
 }

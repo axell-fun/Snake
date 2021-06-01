@@ -41,6 +41,14 @@ public class @PlayerInput : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""TapInput"",
+                    ""type"": ""Value"",
+                    ""id"": ""79ce7b9d-da42-4b03-8591-b3398682b198"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -120,6 +128,17 @@ public class @PlayerInput : IInputActionCollection, IDisposable
                     ""action"": ""Tap"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c6e4ba18-ceb8-41a4-94a6-2779db8e61c6"",
+                    ""path"": ""<Touchscreen>/position"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Phone"",
+                    ""action"": ""TapInput"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -159,6 +178,7 @@ public class @PlayerInput : IInputActionCollection, IDisposable
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_TouchInput = m_Player.FindAction("TouchInput", throwIfNotFound: true);
         m_Player_Tap = m_Player.FindAction("Tap", throwIfNotFound: true);
+        m_Player_TapInput = m_Player.FindAction("TapInput", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -211,6 +231,7 @@ public class @PlayerInput : IInputActionCollection, IDisposable
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_TouchInput;
     private readonly InputAction m_Player_Tap;
+    private readonly InputAction m_Player_TapInput;
     public struct PlayerActions
     {
         private @PlayerInput m_Wrapper;
@@ -218,6 +239,7 @@ public class @PlayerInput : IInputActionCollection, IDisposable
         public InputAction @Move => m_Wrapper.m_Player_Move;
         public InputAction @TouchInput => m_Wrapper.m_Player_TouchInput;
         public InputAction @Tap => m_Wrapper.m_Player_Tap;
+        public InputAction @TapInput => m_Wrapper.m_Player_TapInput;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -236,6 +258,9 @@ public class @PlayerInput : IInputActionCollection, IDisposable
                 @Tap.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTap;
                 @Tap.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTap;
                 @Tap.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTap;
+                @TapInput.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTapInput;
+                @TapInput.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTapInput;
+                @TapInput.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnTapInput;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -249,6 +274,9 @@ public class @PlayerInput : IInputActionCollection, IDisposable
                 @Tap.started += instance.OnTap;
                 @Tap.performed += instance.OnTap;
                 @Tap.canceled += instance.OnTap;
+                @TapInput.started += instance.OnTapInput;
+                @TapInput.performed += instance.OnTapInput;
+                @TapInput.canceled += instance.OnTapInput;
             }
         }
     }
@@ -276,5 +304,6 @@ public class @PlayerInput : IInputActionCollection, IDisposable
         void OnMove(InputAction.CallbackContext context);
         void OnTouchInput(InputAction.CallbackContext context);
         void OnTap(InputAction.CallbackContext context);
+        void OnTapInput(InputAction.CallbackContext context);
     }
 }

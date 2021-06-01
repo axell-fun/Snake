@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,8 +8,13 @@ public class SceneManager : MonoBehaviour {
 	private int actualMenuSnake = 0;
 	public bool GUI_ON = true;
 
-	// Use this for initialization
-	void Start () {
+    internal static void LoadScene(string nameScene)
+    {
+        throw new NotImplementedException();
+    }
+
+    // Use this for initialization
+    void Start () {
 		createMenuSnake (actualMenuSnake);
 	}
 
