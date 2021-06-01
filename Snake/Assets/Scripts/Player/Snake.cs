@@ -33,19 +33,27 @@ public class Snake : MonoBehaviour
     {
         _foodCollection.PeaksHit += TakeDamage;
         _foodCollection.FoodCollected += ChangeHealth;
-        _foodCollection.CoinTaken += ChangeCoin;
+        _foodCollection.CoinTaken += ChangeCoins;
         _foodCollection.BadEatTaken += Die;
+        _foodCollection.FeverActivated += ResetCoins;
     }
 
     private void OnDisable()
     {
         _foodCollection.PeaksHit -= TakeDamage;
         _foodCollection.FoodCollected -= ChangeHealth;
-        _foodCollection.CoinTaken -= ChangeCoin;
+        _foodCollection.CoinTaken -= ChangeCoins;
         _foodCollection.BadEatTaken -= Die;
+        _foodCollection.FeverActivated -= ResetCoins;
     }
 
-    private void ChangeCoin()
+    private void ResetCoins()
+    {
+        _coin = 0;
+        CoinChanged?.Invoke();
+    }
+
+    private void ChangeCoins()
     {
         _coin++;
         CoinChanged?.Invoke();
